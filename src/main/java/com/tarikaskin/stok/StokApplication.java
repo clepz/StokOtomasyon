@@ -8,5 +8,8 @@ public class StokApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StokApplication.class, args);
+
+
+        //qwadasdfasfasfa
     }
 }

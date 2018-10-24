@@ -11,5 +11,6 @@ public class StokApplication {
 
         //fsfsfsfsfsf
         //qwadasdfasfasfa
+        //tarik
     }
 }

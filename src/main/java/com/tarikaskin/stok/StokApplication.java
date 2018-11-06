@@ -9,6 +9,16 @@ public class StokApplication {
     public static void main(String[] args) {
         SpringApplication.run(StokApplication.class, args);
 
-        //dadada
+
     }
+
+    /*@Bean
+    public WebMvcConfigurer corsConfigurer(){
+        return new WebMvcConfigurerAdapter(){
+            @Override
+            public void addCorsMappings(CorsRegistry registry){
+                registry.addMapping("/api*").allowedOrigins("http://localhost:8080");
+            }
+        };
+    }*/
 }

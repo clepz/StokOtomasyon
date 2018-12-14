@@ -58,5 +58,10 @@ public class denemecontroller {
         return 1;
     }
 
+    @DeleteMapping(value = "user/sil")
+    int kullaniciSil(){
+        return 0;
+    }
+
 
 }

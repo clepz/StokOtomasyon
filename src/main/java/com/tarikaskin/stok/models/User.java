@@ -1,13 +1,12 @@
 package com.tarikaskin.stok.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "kullanicilar")
-public class User {
+public class User implements Serializable {
 
     @Id
     @Column(name = "kullanici_adi")

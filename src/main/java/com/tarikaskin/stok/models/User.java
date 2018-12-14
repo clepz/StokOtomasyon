@@ -19,6 +19,17 @@ public class User {
     @Column(name = "rol")
     private String rol;
 
+    @Column(name = "kullanici_id")
+    private int kullaniciId;
+
+    public int getKullaniciId() {
+        return kullaniciId;
+    }
+
+    public void setKullaniciId(int kullaniciId) {
+        this.kullaniciId = kullaniciId;
+    }
+
     public String getRol() {
         return rol;
     }

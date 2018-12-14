@@ -50,11 +50,12 @@ public class denemecontroller {
         return bundleRepository.findByBarkod("1111111111111111");
     }
 
-    @PostMapping(value = "/ekle")
-    User  ekle(@RequestBody User user)
+    @PostMapping(value = "/user/ekle")
+    int ekle(@RequestBody User user)
     {
         System.out.println(user.getUsername());
-        return userRepository.save(user);
+        userRepository.save(user);
+        return 1;
     }
 
 

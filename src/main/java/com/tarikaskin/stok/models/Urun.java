@@ -31,6 +31,31 @@ public class Urun {
     @Column
     private String bolum_no;
 
+    @Column
+    int adet;
+
+    public Urun() {
+    }
+
+    public Urun(String barkod, String marka, String model, String aciklama, String seri_no, float fiyat, int bundleVarMi, String bolum_no, int adet) {
+        this.barkod = barkod;
+        this.marka = marka;
+        this.model = model;
+        this.aciklama = aciklama;
+        this.seri_no = seri_no;
+        this.fiyat = fiyat;
+        this.bundleVarMi = bundleVarMi;
+        this.bolum_no = bolum_no;
+        this.adet = adet;
+    }
+
+    public int getAdet() {
+        return adet;
+    }
+
+    public void setAdet(int adet) {
+        this.adet = adet;
+    }
 
     public String getBarkod() {
         return barkod;

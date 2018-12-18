@@ -11,7 +11,7 @@ public class Musteri {
 
     @Id
     @Column(name = "tc")
-    private int tc;
+    private String tc;
 
     @Column(name = "ad")
     private String ad;
@@ -23,22 +23,36 @@ public class Musteri {
     private String adres;
 
     @Column(name = "cinsiyet")
-    private char cinsiyet;
+    private String cinsiyet;
 
     @Column(name = "telefon")
-    private int telefon;
+    private String telefon;
 
-    @Column(name = "ev_telefonu")
-    private int ev_telefonu;
+    @Column(name = "ev_telefon")
+    private String ev_telefonu;
 
     @Column(name = "musteri_notu")
     private String musteri_notu;
 
-    public int getTc() {
+    public Musteri(String tc, String ad, String soyad, String adres, String cinsiyet, String telefon, String ev_telefonu, String musteri_notu) {
+        this.tc = tc;
+        this.ad = ad;
+        this.soyad = soyad;
+        this.adres = adres;
+        this.cinsiyet = cinsiyet;
+        this.telefon = telefon;
+        this.ev_telefonu = ev_telefonu;
+        this.musteri_notu = musteri_notu;
+    }
+
+    public Musteri() {
+    }
+
+    public String getTc() {
         return tc;
     }
 
-    public void setTc(int tc) {
+    public void setTc(String tc) {
         this.tc = tc;
     }
 
@@ -66,27 +80,27 @@ public class Musteri {
         this.adres = adres;
     }
 
-    public char getCinsiyet() {
+    public String getCinsiyet() {
         return cinsiyet;
     }
 
-    public void setCinsiyet(char cinsiyet) {
+    public void setCinsiyet(String cinsiyet) {
         this.cinsiyet = cinsiyet;
     }
 
-    public int getTelefon() {
+    public String getTelefon() {
         return telefon;
     }
 
-    public void setTelefon(int telefon) {
+    public void setTelefon(String telefon) {
         this.telefon = telefon;
     }
 
-    public int getEv_telefonu() {
+    public String getEv_telefonu() {
         return ev_telefonu;
     }
 
-    public void setEv_telefonu(int ev_telefonu) {
+    public void setEv_telefonu(String ev_telefonu) {
         this.ev_telefonu = ev_telefonu;
     }
 

@@ -16,11 +16,9 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.StoredProcedureQuery;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -80,18 +78,16 @@ public class denemecontroller {
     @PostMapping(value = "/admin/ekle")
     int ekle(@RequestBody User user)
     {
-        List<SqlParameter> parameters = Arrays.asList(new SqlParameter(Types.INTEGER), new SqlParameter(Types.VARCHAR), new SqlParameter(Types.VARCHAR), new SqlParameter(Types.VARCHAR));
+        List<SqlParameter> parameters = Arrays.asList(new SqlParameter(Types.INTEGER), new SqlParameter(Types.VARCHAR), new SqlParameter(Types.VARCHAR),
+                new SqlParameter(Types.VARCHAR));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        Map<String, Object> t = jdbcTemplate.call(new CallableStatementCreator() {
-            @Override
-            public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                CallableStatement callableStatement = con.prepareCall("{call kullanici_ekle (?,?,?,?)}");
-                callableStatement.setInt(1, user.getKullaniciId());
-                callableStatement.setString(2,user.getUsername());
-                callableStatement.setString(3,user.getPassword());
-                callableStatement.setString(4,user.getRol());
-                return callableStatement;
-            }
+        Map<String, Object> t = jdbcTemplate.call(con -> {
+            CallableStatement callableStatement = con.prepareCall("{call kullanici_ekle (?,?,?,?)}");
+            callableStatement.setInt(1, user.getKullaniciId());
+            callableStatement.setString(2,user.getUsername());
+            callableStatement.setString(3,user.getPassword());
+            callableStatement.setString(4,user.getRol());
+            return callableStatement;
         },parameters);
         return 1;
     }
@@ -161,8 +157,39 @@ public class denemecontroller {
             System.out.println(satisHazirlik.getMusteri().getCinsiyet());
             musteriRepository.save(satisHazirlik.getMusteri());
         }
+        int faturaNo= -1;
+        for(Fatura fatura : faturaList){
+            if(fatura.getMusteriTc().equals(satisHazirlik.getMusteri().getTc())) {
+                faturaNo = fatura.getFaturaNo();
+                break;
+            }
+            else if(faturaList.size() == faturaList.lastIndexOf(fatura)+1){
+                try {
+                    Connection con = dataSource.getConnection();
+                    Statement st = con.createStatement();
+                    ResultSet rs = st.executeQuery("select FATURALAR_SEQ.nextval from dual");
+                    rs.next();
+                    faturaNo = rs.getInt(1);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(faturaNo == -1){
+            Connection con = null;
+            try {
+                con = dataSource.getConnection();
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery("select FATURALAR_SEQ.nextval from dual");
+                rs.next();
+                faturaNo = rs.getInt(1);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
         String faturaBilgisi = ayniUrun.getBarkod()+" "+ayniUrun.getMarka() + " " + ayniUrun.getModel() + " " + ayniUrun.getAciklama();
-        Fatura fatura = new Fatura(satisHazirlik.getMusteri().getTc(),satisHazirlik.getSatilanAdet()*ayniUrun.getFiyat(),faturaBilgisi,satisHazirlik.getKullaniciId());
+        Fatura fatura = new Fatura(satisHazirlik.getMusteri().getTc(),satisHazirlik.getSatilanAdet()*ayniUrun.getFiyat(),faturaBilgisi,satisHazirlik.getKullaniciId(),satisHazirlik.getSatilanAdet(),faturaNo);
         Kasiyer kasiyer = new Kasiyer(faturaBilgisi,satisHazirlik.getSatilanAdet(),ayniUrun.getFiyat(),satisHazirlik.getSatilanAdet()*ayniUrun.getFiyat(),ayniUrun.getSeri_no(),satisHazirlik.getMusteri().getTc());
         faturaList.add(fatura);
         kasiyerList.add(kasiyer);
@@ -178,7 +205,7 @@ public class denemecontroller {
             return;
         }
         int adet = eskiUrun.getAdet() + urun.getAdet();
-        urunRepository.urunGuncelle(urun.getAciklama(),urun.getBolum_no(),urun.getBundleVarMi(),urun.getFiyat(),urun.getMarka(),urun.getModel(),urun.getSeri_no(),adet);
+        urunRepository.urunGuncelle(urun.getAciklama(),urun.getBolum_no(),urun.getBundleVarMi(),urun.getFiyat(),urun.getMarka(),urun.getModel(),urun.getSeri_no(),urun.getAdet(),urun.getBarkod());
     }
 
     @GetMapping(value = "/kasiyer/musterileriAl")
@@ -217,12 +244,49 @@ public class denemecontroller {
             }
             return null;
         }).collect(toList());
-        kasiyerList.removeAll(listeKasiyer);
-        faturaList.removeAll(listeFatura);
-        listeFatura.forEach(f -> faturaRepository.kaydet(f.getMusteriTc(),f.getFaturaTutari(),f.getFaturaBilgisi(),f.getKullaniciId()));
-        KasiyerEkranBilgiler bilgiler = new KasiyerEkranBilgiler(musteri,kasiyerList,faturaList);
+        KasiyerEkranBilgiler bilgiler = new KasiyerEkranBilgiler(musteri,listeKasiyer,listeFatura);
         return bilgiler;
     }
 
+    @GetMapping(value = "/kasiyer/urunsatisonay")
+    void onay(@RequestParam String tc){
+        List<Fatura> listeFatura ;
+        listeFatura =  faturaList.stream().filter(u -> u.getMusteriTc().equals(tc)).map(fatura -> {
+            try {
+                return (Fatura)fatura.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
+        kasiyerList.removeAll(kasiyerList.stream().filter(u -> u.getMusteriTc().equals(tc)).collect(toList()));
+        faturaList.removeAll(faturaList.stream().filter(u -> u.getMusteriTc().equals(tc)).collect(toList()));
+        listeFatura.forEach(f -> faturaRepository.kaydet(f.getMusteriTc(),f.getFaturaTutari(),f.getFaturaBilgisi(),f.getKullaniciId(),f.getAdet(),f.getFaturaNo()));
+    }
+
+    @GetMapping(value = "/user/musterilistele")
+    List<Musteri> musteriListele(){
+        return musteriRepository.hepsiniAl();
+    }
+
+    @GetMapping(value = "/user/musterial")
+    Musteri musteriAl(@RequestParam String tc){
+        return musteriRepository.findByTc(tc);
+    }
+
+
+    @GetMapping(value = "/admin/analiztekkisial")
+    Analiz tekKisiAnaliz(@RequestParam("adi") String adi){
+        String gidecek = faturaRepository.analizKullaniciBilgiAl(adi);
+        System.out.println(gidecek);
+        String[] a = gidecek.split(",");
+        return new Analiz(a[0],Double.valueOf(a[1]),a[2]);
+    }
+
+    @GetMapping(value = "/admin/analizherkesal")
+    List<Analiz> analizHerkesAl(){
+        List<Analiz> herkes = faturaRepository.analizTumKullaniciBilgiAl();
+        return herkes;
+    }
 
 }

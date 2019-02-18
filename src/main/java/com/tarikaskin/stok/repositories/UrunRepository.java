@@ -24,9 +24,9 @@ public interface UrunRepository extends CrudRepository<Urun,Integer> {
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "update URUNLER set URUNLER.ACIKLAMA = :a, URUNLER.BOLUM_NO = :b," +
-            "URUNLER.BUNDLE = :c, URUNLER.FIYAT = :d, URUNLER.MARKA = :e, URUNLER.MODEL = :f, URUNLER.SERI_NO = :g, URUNLER.ADET = :h")
+            "URUNLER.BUNDLE = :c, URUNLER.FIYAT = :d, URUNLER.MARKA = :e, URUNLER.MODEL = :f, URUNLER.SERI_NO = :g, URUNLER.ADET = :h where BARKOD = :j")
     void urunGuncelle(@Param("a") String aciklama,@Param("b") String bolumNo,@Param("c") int bundle,@Param("d") float fiyat,
-                      @Param("e") String marka, @Param("f")String model,@Param("g") String seriNo,@Param("h") int adet );
+                      @Param("e") String marka, @Param("f")String model,@Param("g") String seriNo,@Param("h") int adet, @Param("j") String barkod );
 
 
 }

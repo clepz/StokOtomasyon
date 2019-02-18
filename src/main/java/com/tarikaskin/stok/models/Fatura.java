@@ -25,6 +25,28 @@ public class Fatura implements Cloneable{
     @Column(name = "kullaniciId")
     private int kullaniciId;
 
+    @Column(name = "adet")
+    private int adet;
+
+    @Column(name = "fatura_no")
+    private int faturaNo;
+
+    public int getAdet() {
+        return adet;
+    }
+
+    public void setAdet(int adet) {
+        this.adet = adet;
+    }
+
+    public int getFaturaNo() {
+        return faturaNo;
+    }
+
+    public void setFaturaNo(int faturaNo) {
+        this.faturaNo = faturaNo;
+    }
+
     public int getFaturaId() {
         return faturaId;
     }
@@ -68,11 +90,13 @@ public class Fatura implements Cloneable{
         this.kullaniciId = kullaniciId;
     }
 
-    public Fatura(String musteriTc, float faturaTutari, String faturaBilgisi, int kullaniciId) {
+    public Fatura(String musteriTc, float faturaTutari, String faturaBilgisi, int kullaniciId,int adet, int faturaNo) {
         this.musteriTc = musteriTc;
         this.faturaTutari = faturaTutari;
         this.faturaBilgisi = faturaBilgisi;
         this.kullaniciId = kullaniciId;
+        this.adet = adet;
+        this.faturaNo = faturaNo;
     }
 
     @Override
